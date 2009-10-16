@@ -1,8 +1,5 @@
 #pragma once
 
-#define MSG_PROGRESS (WM_USER + 1)
-#define MSG_FINISHED (WM_USER + 2)
-
 class CThread
 {
 private:
@@ -12,7 +9,8 @@ public:
     CThread() : stopped(true), handle(NULL) {}
     virtual LPTHREAD_START_ROUTINE get_routine() = 0;
     void start();
-	void stop() { stopped = true; }
+    virtual void on_stop() {}
+	void stop() { stopped = true; on_stop(); }
 	void wait() { WaitForSingleObject(handle, INFINITE); } 
 	bool is_stopped() { return stopped; }
 	virtual ~CThread();

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Thread.h"
+#include "messages.h"
 #include <complex>
 #include <cmath>
 
@@ -7,6 +8,7 @@
 
 void CThread::start()
 {
+    _ASSERT( handle == NULL);
 	stopped = false;
 	handle = CreateThread( NULL, 0, get_routine(), this, 0, NULL );
 	if( handle == NULL)

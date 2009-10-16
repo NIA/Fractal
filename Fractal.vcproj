@@ -186,6 +186,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AnimationThread.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Fractal.cpp"
 				>
 			</File>
@@ -224,11 +228,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\AnimationThread.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Fractal.h"
 				>
 			</File>
 			<File
 				RelativePath=".\FractalDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\messages.h"
 				>
 			</File>
 			<File

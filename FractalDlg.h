@@ -1,7 +1,7 @@
 #pragma once
 #include "afxcmn.h"
 #include "afxwin.h"
-
+#include "messages.h"
 #include "Thread.h"
 
 // CFractalDlg dialog
@@ -44,10 +44,13 @@ private:
 public:
 // Construction
 	CFractalDlg(CWnd* pParent = NULL);	// standard constructor
+    CCalculationThread * NewCalculationThread(); // creates new calculation thread with compatible params
 
 // Dialog Data
 	enum { IDD = IDD_FRACTAL_DIALOG };
 // Handlers
+    void Zoom(bool zoom_in = true);
+    
 	afx_msg void OnBnClickedButtonStart();
 	afx_msg LRESULT OnProgressChanged(WPARAM,LPARAM);
 	afx_msg LRESULT OnThreadFinish(WPARAM,LPARAM);

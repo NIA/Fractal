@@ -187,6 +187,13 @@ void CFractalDlg::EnableStartControls(BOOL enable)
     GetDlgItem(IDC_BUTTON_IMAGE_1_10)->EnableWindow(enable);
     GetDlgItem(IDC_BUTTON_IMAGE_ACTUAL)->EnableWindow(enable);
 }
+CCalculationThread * CFractalDlg::NewCalculationThread()
+{
+    return new CCalculationThread( m_hWnd,
+                                   m_BitmapWidth, m_BitmapHeight,
+                                   m_ItersPerPoint, m_DrawStyle,
+                                   m_XMin, m_XMax, m_YMin, m_YMax );
+}
 
 void CFractalDlg::OnBnClickedButtonStart()
 {
@@ -200,10 +207,7 @@ void CFractalDlg::OnBnClickedButtonStart()
 	        m_Progress.SetRange(0, m_BitmapHeight);
 	        m_Progress.SetPos(0);
             EnableStartControls(FALSE);
-	        m_Thread = new CCalculationThread (m_hWnd,
-                                               m_BitmapWidth, m_BitmapHeight,
-                                               m_ItersPerPoint, m_DrawStyle,
-                                               m_XMin, m_XMax, m_YMin, m_YMax);
+	        m_Thread = NewCalculationThread();
             m_Thread->start();
 	        GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(TRUE);
         }
@@ -315,26 +319,36 @@ void CFractalDlg::OnBnClickedButtonRight()
     }
 }
 
-void CFractalDlg::OnBnClickedButtonZoomIn()
+void CFractalDlg::Zoom(bool zoom_in)
 {
     _ASSERT(MOVE_QUOTIENT > 2);
-    if( Move(m_XMin, m_XMax, 1, -1, too_narrow) &&
-        Move(m_YMin, m_YMax, 1, -1, too_narrow) )
+    bool res = false;
+    if(zoom_in)
+    {
+        res = ( Move(m_XMin, m_XMax, 1, -1, too_narrow) &&
+                Move(m_YMin, m_YMax, 1, -1, too_narrow) );
+    }
+    else
+    {
+        res = ( Move(m_XMin, m_XMax, -1, 1, too_wide, MOVE_QUOTIENT-2) &&
+                Move(m_YMin, m_YMax, -1, 1, too_wide, MOVE_QUOTIENT-2) );
+    }
+
+    if(res)
     {
         UpdateData(FALSE);
         OnOK();
     }
 }
 
+void CFractalDlg::OnBnClickedButtonZoomIn()
+{
+    Zoom(true);
+}
+
 void CFractalDlg::OnBnClickedButtonZoomOut()
 {
-    _ASSERT(MOVE_QUOTIENT > 2);
-    if( Move(m_XMin, m_XMax, -1, 1, too_wide, MOVE_QUOTIENT-2) &&
-        Move(m_YMin, m_YMax, -1, 1, too_wide, MOVE_QUOTIENT-2) )
-    {
-        UpdateData(FALSE);
-        OnOK();
-    }
+    Zoom(false);
 }
 
 
