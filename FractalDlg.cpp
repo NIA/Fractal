@@ -21,6 +21,7 @@ CFractalDlg::CFractalDlg(CWnd* pParent /*=NULL*/)
     , m_XMax(1.5)
     , m_YMin(-1.5)
     , m_YMax(1.5)
+    , m_AnimationRepeats(20)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -64,6 +65,8 @@ void CFractalDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_INPUT_YMIN, m_YMin);
     DDX_Text(pDX, IDC_INPUT_YMAX, m_YMax);
     DDV_LessFloat(pDX, _T("Y min"), m_YMin, _T("Y max"), m_YMax);
+    DDX_Text(pDX, IDC_ANIMATION_REPEATS, m_AnimationRepeats);
+	DDV_MinMaxUInt(pDX, m_AnimationRepeats, 0, 100);
 }
 
 BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
@@ -88,6 +91,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_IMAGE_1_10, &CFractalDlg::OnBnClickedButtonImage110)
     ON_BN_CLICKED(IDC_BUTTON_IMAGE_ACTUAL, &CFractalDlg::OnBnClickedButtonImageActual)
     ON_BN_CLICKED(IDC_BUTTON_DEMO3, &CFractalDlg::OnBnClickedButtonDemo3)
+    ON_BN_CLICKED(IDC_BUTTON_ANIMATION_GO, &CFractalDlg::OnBnClickedButtonAnimationGo)
 END_MESSAGE_MAP()
 
 
@@ -192,6 +196,7 @@ void CFractalDlg::EnableStartControls(BOOL enable)
     GetDlgItem(IDC_BUTTON_DEMO3)->EnableWindow(enable);
     GetDlgItem(IDC_BUTTON_IMAGE_1_10)->EnableWindow(enable);
     GetDlgItem(IDC_BUTTON_IMAGE_ACTUAL)->EnableWindow(enable);
+    GetDlgItem(IDC_BUTTON_ANIMATION_GO)->EnableWindow(enable);
 }
 CCalculationThread * CFractalDlg::NewCalculationThread()
 {
@@ -449,13 +454,6 @@ void CFractalDlg::OnBnClickedButtonImageActual()
 
 void CFractalDlg::OnBnClickedButtonDemo3()
 {
-    if (m_Thread != NULL)
-    {
-        return;
-    }
-    EnableStartControls(FALSE);
-    m_AnimationOn = true;
-
     m_XMin = -2.38582f;
     m_XMax =  0.845086f;
     m_YMin = -1.24116f;
@@ -464,14 +462,30 @@ void CFractalDlg::OnBnClickedButtonDemo3()
     m_BitmapHeight = 240;
     m_ItersPerPoint = 200;
     UpdateData(FALSE);
+    
+    OnBnClickedButtonAnimationGo();
+}
+
+void CFractalDlg::OnBnClickedButtonAnimationGo()
+{
+    if (m_Thread != NULL)
+    {
+        return;
+    }
 
     m_Bitmap.DeleteObject();
     is_bitmap_made = false;
-    
-    m_Progress.SetRange(0, m_BitmapHeight);
-    m_Progress.SetPos(0);
 
-    m_Thread = new CAnimationThread(this, /*5*/3);
-    m_Thread->start();
-    GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(TRUE);
+    if( UpdateData() )
+    {
+        EnableStartControls(FALSE);
+        m_AnimationOn = true;
+        
+        m_Progress.SetRange(0, m_BitmapHeight);
+        m_Progress.SetPos(0);
+
+        m_Thread = new CAnimationThread(this, m_AnimationRepeats);
+        m_Thread->start();
+        GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(TRUE);
+    }
 }

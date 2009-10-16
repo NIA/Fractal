@@ -77,4 +77,7 @@ public:
     afx_msg void OnBnClickedButtonImage110();
     afx_msg void OnBnClickedButtonImageActual();
     afx_msg void OnBnClickedButtonDemo3();
+    afx_msg void OnBnClickedButtonAnimationGo();
+private:
+    UINT m_AnimationRepeats;
 };

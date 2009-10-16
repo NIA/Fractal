@@ -11,7 +11,7 @@ CAnimationThread::CAnimationThread(CFractalDlg * dialog, unsigned zoom_count)
 }
 
 
-void CAnimationThread::calculate_frame()
+void CAnimationThread::calculate_frame(bool zoom)
 {
     current_thread = dialog->NewCalculationThread();
     current_thread->start();
@@ -20,7 +20,7 @@ void CAnimationThread::calculate_frame()
         dialog->PostDrawAndWait();
     delete current_thread;
     current_thread = NULL;
-    if( !is_stopped() )
+    if( !is_stopped() && zoom )
         dialog->PostZoomAndWait();
 }
 
@@ -33,14 +33,15 @@ DWORD __stdcall CAnimationThread::routine( void * param )
 {
 	CAnimationThread *thread = static_cast<CAnimationThread*>( param );
 	OutputDebugString(_T("Animation Thread Started\n"));
-	for(unsigned i = 0; i < thread->get_zoom_count(); ++i)
+    unsigned zoom_count = thread->get_zoom_count();
+	for(unsigned i = 0; i < zoom_count; ++i)
 	{
 		if( thread->is_stopped() )
 		{
 			OutputDebugString(_T("\nAnimation Thread Interrupted\n"));
 			return 1;
 		}
-        thread->calculate_frame();
+        thread->calculate_frame( i != zoom_count - 1);
 	}
 	Sleep(100);
 	OutputDebugString(_T("\nAnimation Thread Finished\n"));

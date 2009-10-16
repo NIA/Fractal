@@ -31,8 +31,10 @@
 #define IDC_BUTTON_ZOOM_DEMO2           1026
 #define IDC_BUTTON_IMAGE_1_10           1027
 #define IDC_BUTTON_IMAGE_ACTUAL         1028
-#define IDC_BUTTON1                     1029
 #define IDC_BUTTON_DEMO3                1029
+#define IDC_ANIMATION_REPEATS           1030
+#define IDC_BUTTON1                     1031
+#define IDC_BUTTON_ANIMATION_GO         1031
 
 // Next default values for new objects
 // 
@@ -40,7 +42,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1030
+#define _APS_NEXT_CONTROL_VALUE         1032
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
