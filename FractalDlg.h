@@ -1,48 +1,12 @@
-
-// FractalDlg.h : header file
-//
-
 #pragma once
 #include "afxcmn.h"
 #include "afxwin.h"
 
+#include "Thread.h"
 
 // CFractalDlg dialog
 class CFractalDlg : public CDialog
 {
-	class Thread
-	{
-	private:
-		bool stopped;
-		HANDLE handle;
-		HWND dlg_hwnd;
-		UINT width, height;
-		UINT iters_per_point;
-        int draw_style;
-        float x_min;
-        float x_max;
-        float y_min;
-        float y_max;
-	public:
-		RGBQUAD *pixels;
-		Thread(HWND hwnd, UINT width, UINT height, UINT iters_per_point, int draw_style, float x_min, float x_max, float y_min, float y_max);
-		static DWORD WINAPI routine( void * param);
-		void stop() { stopped = true; }
-		void wait() { WaitForSingleObject(handle, INFINITE); } 
-		HWND get_hwnd() { return dlg_hwnd; }
-		UINT get_width() { return width; }
-		UINT get_height() { return height; }
-		int get_style() { return draw_style; }
-        void get_bounds(float &x_min, float &x_max, float &y_min, float &y_max)
-        {
-            x_min = this->x_min;
-            x_max = this->x_max;
-            y_min = this->y_min;
-            y_max = this->y_max;
-        }
-		bool is_stopped() { return stopped; }
-		~Thread();
-	};
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	HICON m_hIcon;
@@ -68,7 +32,7 @@ private:
 	CButton m_ButtonStart;
 	CButton m_ButtonStop;
 	CStatic m_Canvas;
-	Thread * m_Thread;
+	CCalculatingThread * m_Thread;
 
 	UINT m_ItersPerPoint;
     int m_DrawStyle;

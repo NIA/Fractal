@@ -213,6 +213,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Thread.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -237,6 +241,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Thread.h"
 				>
 			</File>
 		</Filter>
