@@ -21,7 +21,7 @@ CThread::~CThread()
 
 // CCalculatingThread
 
-CCalculatingThread::CCalculatingThread(HWND hwnd, UINT width, UINT height, UINT iters_per_point, int draw_style, float x_min, float x_max, float y_min, float y_max)
+CCalculationThread::CCalculationThread(HWND hwnd, UINT width, UINT height, UINT iters_per_point, int draw_style, float x_min, float x_max, float y_min, float y_max)
 	: dlg_hwnd(hwnd), pixels(NULL),
       width(width), height(height), iters_per_point(iters_per_point),
       draw_style(draw_style),
@@ -95,9 +95,9 @@ RGBQUAD mandelbrot_color(float x, float y, unsigned iters_per_point, DRAW_STYLE 
 	return *reinterpret_cast<RGBQUAD*>(&color);
 }
 
-DWORD __stdcall CCalculatingThread::routine( void * param )
+DWORD __stdcall CCalculationThread::routine( void * param )
 {
-	CCalculatingThread *thread = static_cast<CCalculatingThread*>( param );
+	CCalculationThread *thread = static_cast<CCalculationThread*>( param );
 	UINT width = thread->get_width();
 	UINT height = thread->get_height();
     float x_min, x_max, y_min, y_max;
@@ -128,7 +128,7 @@ DWORD __stdcall CCalculatingThread::routine( void * param )
 	return 0;
 }
 
-CCalculatingThread::~CCalculatingThread()
+CCalculationThread::~CCalculationThread()
 {
 	ASSERT( pixels != NULL);
 	delete[] pixels;

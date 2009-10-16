@@ -32,7 +32,7 @@ private:
 	CButton m_ButtonStart;
 	CButton m_ButtonStop;
 	CStatic m_Canvas;
-	CCalculatingThread * m_Thread;
+	CCalculationThread * m_Thread;
 
 	UINT m_ItersPerPoint;
     int m_DrawStyle;

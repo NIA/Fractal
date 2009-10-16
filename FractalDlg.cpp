@@ -200,7 +200,7 @@ void CFractalDlg::OnBnClickedButtonStart()
 	        m_Progress.SetRange(0, m_BitmapHeight);
 	        m_Progress.SetPos(0);
             EnableStartControls(FALSE);
-	        m_Thread = new CCalculatingThread (m_hWnd,
+	        m_Thread = new CCalculationThread (m_hWnd,
                                                m_BitmapWidth, m_BitmapHeight,
                                                m_ItersPerPoint, m_DrawStyle,
                                                m_XMin, m_XMax, m_YMin, m_YMax);
@@ -416,7 +416,7 @@ void CFractalDlg::OnBnClickedButtonDemo3()
         m_Progress.SetRange(0, m_BitmapHeight);
         m_Progress.SetPos(0);
 
-        m_Thread = new CCalculatingThread(m_hWnd,
+        m_Thread = new CCalculationThread(m_hWnd,
                                           m_BitmapWidth, m_BitmapHeight,
                                           m_ItersPerPoint, m_DrawStyle,
                                           m_XMin, m_XMax, m_YMin, m_YMax);
