@@ -13,6 +13,7 @@ CFractalDlg::CFractalDlg(CWnd* pParent /*=NULL*/)
 	, m_BitmapHeight(100)
 	, m_BitmapWidth(100)
 	, m_Thread(NULL)
+	, m_AnimationOn(false)
 	, is_bitmap_made(false)
 	, m_ItersPerPoint(500)
     , m_DrawStyle(0)
@@ -72,6 +73,8 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CFractalDlg::OnBnClickedButtonStart)
 	ON_MESSAGE(MSG_PROGRESS, &CFractalDlg::OnProgressChanged)
 	ON_MESSAGE(MSG_FINISHED, &CFractalDlg::OnThreadFinish)
+	ON_MESSAGE(MSG_ANIMATION_DO_ZOOM, &CFractalDlg::OnDoZoom)
+	ON_MESSAGE(MSG_ANIMATION_FINISHED, &CFractalDlg::OnAnimationFinish)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CFractalDlg::OnBnClickedButtonStop)
     ON_BN_CLICKED(IDC_BUTTON_UP, &CFractalDlg::OnBnClickedButtonUp)
     ON_BN_CLICKED(IDC_BUTTON_DOWN, &CFractalDlg::OnBnClickedButtonDown)
@@ -150,9 +153,11 @@ void CFractalDlg::OnPaint()
 		mem_dc.CreateCompatibleDC(&dc);
 		MakeBitmap(&dc, m_BitmapWidth, m_BitmapHeight);
 		mem_dc.SelectObject(&m_Bitmap);
+
 		if( m_Thread != NULL)
 		{
-			m_Bitmap.SetBitmapBits(m_BitmapWidth*m_BitmapHeight*sizeof(RGBQUAD), m_Thread->pixels);
+            ICanvasThread* canvas = dynamic_cast<ICanvasThread*>(m_Thread);
+			m_Bitmap.SetBitmapBits(m_BitmapWidth*m_BitmapHeight*sizeof(RGBQUAD), canvas->get_pixels());
 		}
 
 		CRect cr; // canvas rect
@@ -160,6 +165,7 @@ void CFractalDlg::OnPaint()
 		ScreenToClient(&cr);
 					
 		dc.StretchBlt(cr.left, cr.top, cr.Width(), cr.Height(), &mem_dc, 0, 0, m_BitmapWidth, m_BitmapHeight, SRCCOPY);
+        m_Drew.SetEvent();
 		CDialog::OnPaint();
 	}
 }
@@ -214,19 +220,28 @@ void CFractalDlg::OnBnClickedButtonStart()
     }
 }
 
-afx_msg LRESULT CFractalDlg::OnThreadFinish(WPARAM,LPARAM)
+afx_msg LRESULT CFractalDlg::OnAnimationFinish(WPARAM,LPARAM)
 {
-	if( m_Thread != NULL)
-	{
-        GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(FALSE);
-	    m_Thread->wait();
-	    delete m_Thread;
-	    m_Thread = NULL;
+    return OnThreadFinish(TRUE,0);
+}
 
-        int lower, upper;
-        m_Progress.GetRange(lower, upper);
-        m_Progress.SetPos( upper );
-        EnableStartControls(TRUE);
+afx_msg LRESULT CFractalDlg::OnThreadFinish(WPARAM force,LPARAM)
+{
+	if( m_Thread != NULL )
+	{
+        if( !m_AnimationOn || force )
+        {
+            GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(FALSE);
+	        m_Thread->wait();
+	        delete m_Thread;
+	        m_Thread = NULL;
+            m_AnimationOn = false;
+
+            int lower, upper;
+            m_Progress.GetRange(lower, upper);
+            m_Progress.SetPos( upper );
+            EnableStartControls(TRUE);
+        }
     }
 	return S_OK;
 }
@@ -236,8 +251,19 @@ void CFractalDlg::OnBnClickedButtonStop()
 	if( m_Thread != NULL)
 	{
 	    m_Thread->stop();
-	    OnThreadFinish(0,0);
+        m_Drew.SetEvent();
+	    OnThreadFinish(TRUE,0);
     }
+}
+
+void CFractalDlg::InvalidateCanvas(int lines_ready)
+{
+	CRect canvas_rect;
+	m_Canvas.GetWindowRect(&canvas_rect);
+	ScreenToClient(&canvas_rect);
+    if( lines_ready >= 0 )
+        canvas_rect.bottom = canvas_rect.top + canvas_rect.Height()*lines_ready/m_BitmapHeight;
+	InvalidateRect(canvas_rect, FALSE);
 }
 
 LRESULT CFractalDlg::OnProgressChanged(WPARAM wparam,LPARAM lparam)
@@ -246,11 +272,8 @@ LRESULT CFractalDlg::OnProgressChanged(WPARAM wparam,LPARAM lparam)
 	m_Progress.SetPos( lines_ready );
 	if( m_Thread != NULL)
 	{
-		CRect canvas_rect;
-		m_Canvas.GetWindowRect(&canvas_rect);
-		ScreenToClient(&canvas_rect);
-        canvas_rect.bottom = canvas_rect.top + canvas_rect.Height()*lines_ready/m_BitmapHeight;
-		InvalidateRect(canvas_rect, FALSE);
+        if( !m_AnimationOn  )
+            InvalidateCanvas(lines_ready);
 	}
 	return S_OK;
 }
@@ -337,20 +360,41 @@ void CFractalDlg::Zoom(bool zoom_in)
     if(res)
     {
         UpdateData(FALSE);
-        OnOK();
     }
+}
+
+LRESULT CFractalDlg::OnDoZoom(WPARAM,LPARAM)
+{
+    Zoom();
+    m_Zoomed.SetEvent();
+    return 0;
 }
 
 void CFractalDlg::OnBnClickedButtonZoomIn()
 {
     Zoom(true);
+    OnOK();
 }
 
 void CFractalDlg::OnBnClickedButtonZoomOut()
 {
     Zoom(false);
+    OnOK();
 }
 
+void CFractalDlg::PostZoomAndWait()
+{
+    m_Zoomed.ResetEvent();
+    ::PostMessage(m_hWnd, MSG_ANIMATION_DO_ZOOM, 0, 0);
+    ::WaitForSingleObject(m_Zoomed.m_hObject, INFINITE);
+}
+
+void CFractalDlg::PostDrawAndWait()
+{
+    m_Drew.ResetEvent();
+    InvalidateCanvas(-1);
+    ::WaitForSingleObject(m_Drew.m_hObject, INFINITE);
+}
 
 void CFractalDlg::OnBnClickedButtonZoomDefault()
 {
@@ -410,6 +454,7 @@ void CFractalDlg::OnBnClickedButtonDemo3()
         return;
     }
     EnableStartControls(FALSE);
+    m_AnimationOn = true;
 
     m_XMin = -2.38582f;
     m_XMax =  0.845086f;
@@ -418,29 +463,15 @@ void CFractalDlg::OnBnClickedButtonDemo3()
     m_BitmapWidth = 320;
     m_BitmapHeight = 240;
     m_ItersPerPoint = 200;
+    UpdateData(FALSE);
 
-    for(unsigned i=0; i<53; ++i)
-    {
-        Move(m_XMin, m_XMax, 1, -1, too_narrow); // zoom in
-        Move(m_YMin, m_YMax, 1, -1, too_narrow); // zoom in
-        UpdateData(FALSE);
+    m_Bitmap.DeleteObject();
+    is_bitmap_made = false;
+    
+    m_Progress.SetRange(0, m_BitmapHeight);
+    m_Progress.SetPos(0);
 
-        m_Bitmap.DeleteObject();
-        is_bitmap_made = false;
-        m_Progress.SetRange(0, m_BitmapHeight);
-        m_Progress.SetPos(0);
-
-        m_Thread = new CCalculationThread(m_hWnd,
-                                          m_BitmapWidth, m_BitmapHeight,
-                                          m_ItersPerPoint, m_DrawStyle,
-                                          m_XMin, m_XMax, m_YMin, m_YMax);
-        m_Thread->start();
-        m_Thread->wait();
-        Invalidate(FALSE);
-        OnPaint();
-	    delete m_Thread;
-	    m_Thread = NULL;
-        Sleep(20);
-    }
-    EnableStartControls(TRUE);
+    m_Thread = new CAnimationThread(this, /*5*/3);
+    m_Thread->start();
+    GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(TRUE);
 }

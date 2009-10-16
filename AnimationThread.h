@@ -3,7 +3,7 @@
 
 class CFractalDlg;
 
-class CAnimationThread : public CThread
+class CAnimationThread : public CThread, public ICanvasThread
 {
 private:
     CCalculationThread * current_thread;
@@ -12,6 +12,7 @@ private:
 public:
     CAnimationThread(CFractalDlg * dialog, unsigned zoom_count);
     unsigned get_zoom_count() { return zoom_count; }
+	virtual RGBQUAD *get_pixels();
     void calculate_frame();
     void post_message(UINT msg);
 	static DWORD WINAPI routine( void * param);

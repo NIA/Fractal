@@ -16,7 +16,13 @@ public:
 	virtual ~CThread();
 };
 
-class CCalculationThread : public CThread
+class ICanvasThread // interface "having pixels"
+{
+public:
+    virtual RGBQUAD *get_pixels() = 0;
+};
+
+class CCalculationThread : public CThread, public ICanvasThread
 {
 private:
 	HWND dlg_hwnd;
@@ -27,8 +33,8 @@ private:
     float x_max;
     float y_min;
     float y_max;
-public:
 	RGBQUAD *pixels;
+public:
 	CCalculationThread(HWND hwnd, UINT width, UINT height, UINT iters_per_point, int draw_style, float x_min, float x_max, float y_min, float y_max);
 	static DWORD WINAPI routine( void * param);
     virtual LPTHREAD_START_ROUTINE get_routine(){ return routine; };
@@ -36,6 +42,7 @@ public:
 	UINT get_width() { return width; }
 	UINT get_height() { return height; }
 	int get_style() { return draw_style; }
+	virtual RGBQUAD *get_pixels() { return pixels; }
     void get_bounds(float &x_min, float &x_max, float &y_min, float &y_max)
     {
         x_min = this->x_min;

@@ -118,7 +118,7 @@ DWORD __stdcall CCalculationThread::routine( void * param )
 			}
 			float x = static_cast<float>(i)*(x_max - x_min)/width + x_min;
             float y = static_cast<float>(j)*(y_max - y_min)/height + y_min;
-			thread->pixels[j*width + i] =
+			thread->get_pixels()[j*width + i] =
                 mandelbrot_color( x, y, thread->iters_per_point, static_cast<DRAW_STYLE>(thread->get_style()) );
 		}
 		OutputDebugString(_T("."));

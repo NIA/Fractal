@@ -16,8 +16,12 @@ void CAnimationThread::calculate_frame()
     current_thread = dialog->NewCalculationThread();
     current_thread->start();
     current_thread->wait();
+    if( !is_stopped() )
+        dialog->PostDrawAndWait();
     delete current_thread;
-    dialog->Zoom();
+    current_thread = NULL;
+    if( !is_stopped() )
+        dialog->PostZoomAndWait();
 }
 
 void CAnimationThread::post_message(UINT msg)
@@ -37,13 +41,20 @@ DWORD __stdcall CAnimationThread::routine( void * param )
 			return 1;
 		}
         thread->calculate_frame();
-        thread->post_message(MSG_ANIMATION_FRAME);
 	}
 	Sleep(100);
 	OutputDebugString(_T("\nAnimation Thread Finished\n"));
 	thread->post_message(MSG_ANIMATION_FINISHED);
 	return 0;
 }
+RGBQUAD *CAnimationThread::get_pixels()
+{
+    if (current_thread == NULL)
+        return NULL;
+    else
+        return current_thread->get_pixels();
+}
+
 
 void CAnimationThread::on_stop()
 {

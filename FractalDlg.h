@@ -3,6 +3,7 @@
 #include "afxwin.h"
 #include "messages.h"
 #include "Thread.h"
+#include "AnimationThread.h"
 
 // CFractalDlg dialog
 class CFractalDlg : public CDialog
@@ -32,7 +33,11 @@ private:
 	CButton m_ButtonStart;
 	CButton m_ButtonStop;
 	CStatic m_Canvas;
-	CCalculationThread * m_Thread;
+	CThread * m_Thread;
+
+	bool m_AnimationOn;
+    CEvent m_Zoomed;
+    CEvent m_Drew;
 
 	UINT m_ItersPerPoint;
     int m_DrawStyle;
@@ -50,10 +55,15 @@ public:
 	enum { IDD = IDD_FRACTAL_DIALOG };
 // Handlers
     void Zoom(bool zoom_in = true);
+    void PostZoomAndWait();
+    void PostDrawAndWait();
+    void InvalidateCanvas(int lines_ready = -1);
     
 	afx_msg void OnBnClickedButtonStart();
 	afx_msg LRESULT OnProgressChanged(WPARAM,LPARAM);
 	afx_msg LRESULT OnThreadFinish(WPARAM,LPARAM);
+	afx_msg LRESULT OnDoZoom(WPARAM,LPARAM);
+	afx_msg LRESULT OnAnimationFinish(WPARAM,LPARAM);
 	afx_msg void OnBnClickedButtonStop();
     afx_msg void OnBnClickedButtonUp();
     afx_msg void OnBnClickedButtonDown();
