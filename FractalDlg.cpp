@@ -413,27 +413,37 @@ void CFractalDlg::OnBnClickedButtonZoomDefault()
 
 void CFractalDlg::OnBnClickedButtonZoomDemo()
 {
-    m_XMin = -1.78671f;
-    m_XMax = -1.78541f;
-    m_YMin = -0.00049f;
-    m_YMax = +0.00049f;
+    m_XMin = -4.25283f;
+    m_XMax =  0.68069f;
+    m_YMin = -1.88741f;
+    m_YMax =  1.88741f;
     m_BitmapWidth = 200;
     m_BitmapHeight = 180;
-    m_ItersPerPoint = 160;
+    m_ItersPerPoint = 300;
+    m_AnimationRepeats = 36;
     UpdateData(FALSE);
-    OnOK();
+
+    OnBnClickedButtonAnimationGo();
 }
 
 void CFractalDlg::OnBnClickedButtonZoomDemo2()
 {
-    m_XMin = -1.09643f;
-    m_XMax = -0.66694f;
-    m_YMin =  0.04792f;
-    m_YMax =  0.37004f;
-	SetDefaultPictureSize();
-    m_ItersPerPoint = 500;
+//x: -0.106644 .. -0.0955482
+//y: -0.960995 .. -0.951578
+//iters: 150
+//picture: 200x180
+//
+    m_XMin = -1.93677f;
+    m_XMax = 1.73458f;
+    m_YMin = -2.51409f;
+    m_YMax =  0.6015348f;
+    m_BitmapWidth = 200;
+    m_BitmapHeight = 180;
+    m_ItersPerPoint = 150;
+    m_AnimationRepeats = 52;
     UpdateData(FALSE);
-    OnOK();
+    
+    OnBnClickedButtonAnimationGo();
 }
 
 void CFractalDlg::OnBnClickedButtonImage110()
@@ -461,6 +471,7 @@ void CFractalDlg::OnBnClickedButtonDemo3()
     m_BitmapWidth = 320;
     m_BitmapHeight = 240;
     m_ItersPerPoint = 200;
+    m_AnimationRepeats = 52;
     UpdateData(FALSE);
     
     OnBnClickedButtonAnimationGo();
