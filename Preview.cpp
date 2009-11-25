@@ -56,22 +56,21 @@ void CPreview::OnPaint()
 	dc.StretchBlt(0, 0, w, h, &bg_dc, 0, 0, bg_bmp_info.bmWidth, bg_bmp_info.bmHeight, SRCCOPY);
 
     CRect draw_rect;
-    draw_rect.left = (LONG) ( x_min*w ) - 1;
-    draw_rect.right = (LONG) ( x_max*w ) + 1;
-    draw_rect.top = (LONG) ( y_min*h ) - 1;
-    draw_rect.bottom = (LONG) ( y_max*h ) + 1;
+    draw_rect.left = max(0, (LONG) ( x_min*w ) - 1);
+    draw_rect.right = min(w, (LONG) ( x_max*w ) + 1);
+    draw_rect.top = max(0, (LONG) ( y_min*h ) - 1);
+    draw_rect.bottom = min(h, (LONG) ( y_max*h ) + 1);
 
     CBrush brush(PREVIEW_FRAME_COLOR);
-    //dc.FillSolidRect(control_rect, PREVIEW_BKG_COLOR);
     dc.FrameRect(draw_rect, &brush);
 }
 
 void CPreview::Set(float _x_min, float _x_max, float _y_min, float _y_max)
 {
-    x_max = min(1, _x_max);
-    x_min = max(0, _x_min);
-    y_max = min(1, _y_max);
-    y_min = max(0, _y_min);
+    x_max = _x_max;
+    x_min = _x_min;
+    y_max = _y_max;
+    y_min = _y_min;
 
     Invalidate(TRUE);
 }

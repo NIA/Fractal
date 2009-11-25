@@ -236,6 +236,7 @@ void CFractalDlg::OnBnClickedButtonStart()
 
 	    if( UpdateData() )
         {
+            UpdatePreview();
 	        m_Progress.SetRange(0, m_BitmapHeight);
 	        m_Progress.SetPos(0);
             EnableStartControls(FALSE);
