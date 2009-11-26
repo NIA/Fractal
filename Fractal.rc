@@ -74,6 +74,13 @@ IDR_MAINFRAME           ICON                    "res\\Fractal.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Bitmap
+//
+
+IDB_PREVIEW             BITMAP                  "preview-small.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -100,7 +107,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_FRACTAL_DIALOG DIALOGEX 0, 0, 591, 431
+IDD_FRACTAL_DIALOG DIALOGEX 0, 0, 706, 430
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Mandelbrot set"
@@ -148,6 +155,7 @@ BEGIN
     LTEXT           "Zoom repeats",IDC_STATIC,13,315,45,9
     EDITTEXT        IDC_ANIMATION_REPEATS,59,313,36,12,ES_AUTOHSCROLL
     PUSHBUTTON      "GO!",IDC_BUTTON_ANIMATION_GO,12,330,84,18
+    LTEXT           "",IDC_PREVIEW,594,6,96,78,WS_BORDER,WS_EX_STATICEDGE
 END
 
 
@@ -202,7 +210,7 @@ BEGIN
     IDD_FRACTAL_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 507
+        RIGHTMARGIN, 699
         TOPMARGIN, 7
         BOTTOMMARGIN, 350
         HORZGUIDE, 48

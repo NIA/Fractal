@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Preview.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -244,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Preview.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Resource.h"
 				>
 			</File>
@@ -275,6 +283,10 @@
 			</File>
 			<File
 				RelativePath=".\res\Fractal.rc2"
+				>
+			</File>
+			<File
+				RelativePath=".\preview-small.bmp"
 				>
 			</File>
 		</Filter>

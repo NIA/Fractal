@@ -4,6 +4,7 @@
 #include "messages.h"
 #include "Thread.h"
 #include "AnimationThread.h"
+#include "preview.h"
 
 // CFractalDlg dialog
 class CFractalDlg : public CDialog
@@ -12,6 +13,8 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	HICON m_hIcon;
 	void MakeBitmap(CDC *dc, int w, int h);
+    void ReadData();
+
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -38,8 +41,8 @@ private:
 
 	bool m_AnimationOn;
     CEvent m_Zoomed;
-    CEvent m_Drew;
     CEvent m_UpdatedData;
+    CEvent m_Read;
 
 	UINT m_ItersPerPoint;
     int m_DrawStyle;
@@ -48,24 +51,30 @@ private:
     float m_XMax;
     float m_YMin;
     float m_YMax;
+
+    UINT m_AnimationRepeats;
+    CPreview m_Preview;
 public:
 // Construction
 	CFractalDlg(CWnd* pParent = NULL);	// standard constructor
+// Accessed by animation thread
     CCalculationThread * NewCalculationThread(); // creates new calculation thread with compatible params
+    void UpdatePreview();
 
 // Dialog Data
 	enum { IDD = IDD_FRACTAL_DIALOG };
 // Handlers
-    void Zoom(bool zoom_in = true);
+    void Zoom(bool zoom_in = true, bool need_to_update_data = false);
     void PostZoomAndWait();
-    void PostDrawAndWait();
     void PostUpdateDataAndWait();
+    void PostReadAndWait();
     void InvalidateCanvas(int lines_ready = -1);
     
 	afx_msg void OnBnClickedButtonStart();
 	afx_msg LRESULT OnProgressChanged(WPARAM,LPARAM);
 	afx_msg LRESULT OnThreadFinish(WPARAM,LPARAM);
 	afx_msg LRESULT OnDoZoom(WPARAM,LPARAM);
+	afx_msg LRESULT OnDoRead(WPARAM,LPARAM);
 	afx_msg LRESULT OnAnimationFinish(WPARAM,LPARAM);
 	afx_msg LRESULT OnDoUpdateData(WPARAM,LPARAM);
 	afx_msg void OnBnClickedButtonStop();
@@ -82,6 +91,4 @@ public:
     afx_msg void OnBnClickedButtonImageActual();
     afx_msg void OnBnClickedButtonDemo3();
     afx_msg void OnBnClickedButtonAnimationGo();
-private:
-    UINT m_AnimationRepeats;
 };

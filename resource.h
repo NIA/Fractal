@@ -5,6 +5,8 @@
 #define IDD_FRACTAL_DIALOG              102
 #define IDR_MAINFRAME                   128
 #define IDS_PARSE_LESS                  130
+#define IDB_BITMAP1                     132
+#define IDB_PREVIEW                     132
 #define IDC_INPUT_WIDTH                 1000
 #define IDC_CANVAS                      1001
 #define IDC_BUTTON_START                1002
@@ -35,14 +37,15 @@
 #define IDC_ANIMATION_REPEATS           1030
 #define IDC_BUTTON1                     1031
 #define IDC_BUTTON_ANIMATION_GO         1031
+#define IDC_PREVIEW                     1032
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
