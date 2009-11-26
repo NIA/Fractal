@@ -21,6 +21,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
     void EnableStartControls(BOOL enable = TRUE);
+	void EnableCriticalForAnimationControls(BOOL enable = TRUE);
     void SetDefaultPictureSize();
 
 	CProgressCtrl m_Progress;
@@ -38,6 +39,7 @@ private:
 	bool m_AnimationOn;
     CEvent m_Zoomed;
     CEvent m_Drew;
+    CEvent m_UpdatedData;
 
 	UINT m_ItersPerPoint;
     int m_DrawStyle;
@@ -57,6 +59,7 @@ public:
     void Zoom(bool zoom_in = true);
     void PostZoomAndWait();
     void PostDrawAndWait();
+    void PostUpdateDataAndWait();
     void InvalidateCanvas(int lines_ready = -1);
     
 	afx_msg void OnBnClickedButtonStart();
@@ -64,6 +67,7 @@ public:
 	afx_msg LRESULT OnThreadFinish(WPARAM,LPARAM);
 	afx_msg LRESULT OnDoZoom(WPARAM,LPARAM);
 	afx_msg LRESULT OnAnimationFinish(WPARAM,LPARAM);
+	afx_msg LRESULT OnDoUpdateData(WPARAM,LPARAM);
 	afx_msg void OnBnClickedButtonStop();
     afx_msg void OnBnClickedButtonUp();
     afx_msg void OnBnClickedButtonDown();

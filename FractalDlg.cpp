@@ -78,6 +78,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
 	ON_MESSAGE(MSG_FINISHED, &CFractalDlg::OnThreadFinish)
 	ON_MESSAGE(MSG_ANIMATION_DO_ZOOM, &CFractalDlg::OnDoZoom)
 	ON_MESSAGE(MSG_ANIMATION_FINISHED, &CFractalDlg::OnAnimationFinish)
+	ON_MESSAGE(MSG_ANIMATION_DO_UPDATE_DATA, &CFractalDlg::OnDoUpdateData)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CFractalDlg::OnBnClickedButtonStop)
     ON_BN_CLICKED(IDC_BUTTON_UP, &CFractalDlg::OnBnClickedButtonUp)
     ON_BN_CLICKED(IDC_BUTTON_DOWN, &CFractalDlg::OnBnClickedButtonDown)
@@ -92,6 +93,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_IMAGE_ACTUAL, &CFractalDlg::OnBnClickedButtonImageActual)
     ON_BN_CLICKED(IDC_BUTTON_DEMO3, &CFractalDlg::OnBnClickedButtonDemo3)
     ON_BN_CLICKED(IDC_BUTTON_ANIMATION_GO, &CFractalDlg::OnBnClickedButtonAnimationGo)
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -198,6 +200,13 @@ void CFractalDlg::EnableStartControls(BOOL enable)
     GetDlgItem(IDC_BUTTON_IMAGE_ACTUAL)->EnableWindow(enable);
     GetDlgItem(IDC_BUTTON_ANIMATION_GO)->EnableWindow(enable);
 }
+
+void CFractalDlg::EnableCriticalForAnimationControls(BOOL enable)
+{
+	GetDlgItem(IDC_INPUT_WIDTH)->EnableWindow(enable);
+	GetDlgItem(IDC_INPUT_HEIGHT)->EnableWindow(enable);
+}
+
 CCalculationThread * CFractalDlg::NewCalculationThread()
 {
     return new CCalculationThread( m_hWnd,
@@ -246,6 +255,7 @@ afx_msg LRESULT CFractalDlg::OnThreadFinish(WPARAM force,LPARAM)
             m_Progress.GetRange(lower, upper);
             m_Progress.SetPos( upper );
             EnableStartControls(TRUE);
+			EnableCriticalForAnimationControls(TRUE);
         }
     }
 	return S_OK;
@@ -350,7 +360,8 @@ void CFractalDlg::OnBnClickedButtonRight()
 void CFractalDlg::Zoom(bool zoom_in)
 {
     _ASSERT(MOVE_QUOTIENT > 2);
-    bool res = false;
+    
+	bool res = false;
     if(zoom_in)
     {
         res = ( Move(m_XMin, m_XMax, 1, -1, too_narrow) &&
@@ -366,13 +377,6 @@ void CFractalDlg::Zoom(bool zoom_in)
     {
         UpdateData(FALSE);
     }
-}
-
-LRESULT CFractalDlg::OnDoZoom(WPARAM,LPARAM)
-{
-    Zoom();
-    m_Zoomed.SetEvent();
-    return 0;
 }
 
 void CFractalDlg::OnBnClickedButtonZoomIn()
@@ -399,6 +403,28 @@ void CFractalDlg::PostDrawAndWait()
     m_Drew.ResetEvent();
     InvalidateCanvas(-1);
     ::WaitForSingleObject(m_Drew.m_hObject, INFINITE);
+}
+
+void CFractalDlg::PostUpdateDataAndWait()
+{
+    m_UpdatedData.ResetEvent();
+    ::PostMessage(m_hWnd, MSG_ANIMATION_DO_UPDATE_DATA, 0, 0);
+    ::WaitForSingleObject(m_UpdatedData.m_hObject, INFINITE);
+}
+
+LRESULT CFractalDlg::OnDoZoom(WPARAM,LPARAM)
+{
+    Zoom();
+    m_Zoomed.SetEvent();
+    return 0;
+}
+
+LRESULT CFractalDlg::OnDoUpdateData(WPARAM,LPARAM)
+{
+	UpdateData(); // TODO: Confirm that bitmap width and height are not changed
+
+	m_UpdatedData.SetEvent();
+	return 0;
 }
 
 void CFractalDlg::OnBnClickedButtonZoomDefault()
@@ -489,6 +515,7 @@ void CFractalDlg::OnBnClickedButtonAnimationGo()
     if( UpdateData() )
     {
         EnableStartControls(FALSE);
+		EnableCriticalForAnimationControls(FALSE);
         m_AnimationOn = true;
         
         m_Progress.SetRange(0, m_BitmapHeight);

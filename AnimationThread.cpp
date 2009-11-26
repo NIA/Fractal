@@ -20,6 +20,8 @@ void CAnimationThread::calculate_frame(bool zoom)
         dialog->PostDrawAndWait();
     delete current_thread;
     current_thread = NULL;
+    if( !is_stopped() )
+		dialog->PostUpdateDataAndWait();
     if( !is_stopped() && zoom )
         dialog->PostZoomAndWait();
 }
