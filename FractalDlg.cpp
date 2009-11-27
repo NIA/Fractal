@@ -102,6 +102,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_DEMO3, &CFractalDlg::OnBnClickedButtonDemo3)
     ON_BN_CLICKED(IDC_BUTTON_ANIMATION_GO, &CFractalDlg::OnBnClickedButtonAnimationGo)
 	ON_WM_CLOSE()
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_ANIMATION_REPEATS, &CFractalDlg::OnDeltaposSpinAnimationRepeats)
 END_MESSAGE_MAP()
 
 
@@ -192,8 +193,8 @@ void CFractalDlg::OnPaint()
 		m_Canvas.GetWindowRect(&cr);
 		ScreenToClient(&cr);
 					
+		//CDialog::OnPaint();
 		dc.StretchBlt(cr.left, cr.top, cr.Width(), cr.Height(), &mem_dc, 0, 0, m_BitmapWidth, m_BitmapHeight, SRCCOPY);
-		CDialog::OnPaint();
 	}
 }
 
@@ -563,7 +564,7 @@ void CFractalDlg::OnBnClickedButtonAnimationGo()
     m_Bitmap.DeleteObject();
     is_bitmap_made = false;
 
-    if( UpdateData() )
+    if( UpdateData() && m_AnimationRepeats > 0 )
     {
         EnableStartControls(FALSE);
 		EnableCriticalForAnimationControls(FALSE);
@@ -575,5 +576,23 @@ void CFractalDlg::OnBnClickedButtonAnimationGo()
         m_Thread = new CAnimationThread(this, m_AnimationRepeats);
         m_Thread->start();
         GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(TRUE);
+    }
+}
+
+void CFractalDlg::OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+    if(UpdateData())
+    {
+        if( m_AnimationRepeats > 0 || pNMUpDown->iDelta < 0 )
+        {
+            m_AnimationRepeats -= pNMUpDown->iDelta;
+            UpdateData(FALSE);
+        }
+	    *pResult = 0;
+    }
+    else
+    {
+        *pResult = E_FAIL;
     }
 }

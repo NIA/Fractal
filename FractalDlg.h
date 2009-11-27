@@ -91,4 +91,5 @@ public:
     afx_msg void OnBnClickedButtonImageActual();
     afx_msg void OnBnClickedButtonDemo3();
     afx_msg void OnBnClickedButtonAnimationGo();
+	afx_msg void OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult);
 };
