@@ -2,6 +2,8 @@
 #include "Fractal.h"
 #include "FractalDlg.h"
 
+#include <cmath>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -13,6 +15,13 @@ const float DEFAULT_Y_MAX = 1.5f;
 
 const float DEFAULT_WIDTH = DEFAULT_X_MAX - DEFAULT_X_MIN;
 const float DEFAULT_HEIGHT = DEFAULT_Y_MAX - DEFAULT_Y_MIN;
+
+const float DEFAULT_MOVE_QUOTIENT = 10.0f; // it means that picture is moved/zoomed to 1/10 each step
+                                           // > 2 !
+const float DEFAULT_ZOOM_FACTOR = 1/(1 - 2/DEFAULT_MOVE_QUOTIENT);
+
+const UINT MAX_ZOOM_EXPONENT = 7;
+const UINT UNITS_PER_ZOOM_EXPONENT = 10;
 
 CFractalDlg::CFractalDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CFractalDlg::IDD, pParent)
@@ -28,6 +37,7 @@ CFractalDlg::CFractalDlg(CWnd* pParent /*=NULL*/)
     , m_YMin(DEFAULT_Y_MIN)
     , m_YMax(DEFAULT_Y_MAX)
     , m_AnimationRepeats(20)
+    , m_Zoom(100)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -74,6 +84,9 @@ void CFractalDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_ANIMATION_REPEATS, m_AnimationRepeats);
     DDV_MinMaxUInt(pDX, m_AnimationRepeats, 0, 100);
     DDX_Control(pDX, IDC_PREVIEW, m_Preview);
+    DDX_Text(pDX, IDC_INPUT_ZOOM, m_Zoom);
+    DDX_Control(pDX, IDC_SLIDER_ZOOM, m_SliderZoom);
+    DDX_Control(pDX, IDC_INPUT_ZOOM, m_EditZoom);
 }
 
 BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
@@ -119,6 +132,9 @@ BOOL CFractalDlg::OnInitDialog()
 
 	SetDefaultPictureSize();
 	UpdateData(FALSE);
+
+    m_SliderZoom.SetRange(1*UNITS_PER_ZOOM_EXPONENT, MAX_ZOOM_EXPONENT*UNITS_PER_ZOOM_EXPONENT, TRUE); // 10^1 ... 10^7
+    m_SliderZoom.SetPos(2*UNITS_PER_ZOOM_EXPONENT);  // 10^2 = 100%
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -128,6 +144,7 @@ void CFractalDlg::SetDefaultPictureSize()
 	m_Canvas.GetWindowRect(&rect);
 	m_BitmapWidth = rect.Width();
 	m_BitmapHeight = rect.Height();
+    m_Zoom = 100;
 }
 
 void CFractalDlg::MakeBitmap(CDC *dc, int w, int h)
@@ -205,7 +222,7 @@ HCURSOR CFractalDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CFractalDlg::EnableStartControls(BOOL enable)
+void CFractalDlg::EnableStartControls(BOOL enable /*=TRUE*/)
 {
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(enable);
     GetDlgItem(IDC_BUTTON_UP)->EnableWindow(enable);
@@ -223,7 +240,7 @@ void CFractalDlg::EnableStartControls(BOOL enable)
     GetDlgItem(IDC_BUTTON_ANIMATION_GO)->EnableWindow(enable);
 }
 
-void CFractalDlg::EnableCriticalForAnimationControls(BOOL enable)
+void CFractalDlg::EnableCriticalForAnimationControls(BOOL enable /*=TRUE*/)
 {
 	GetDlgItem(IDC_INPUT_WIDTH)->EnableWindow(enable);
 	GetDlgItem(IDC_INPUT_HEIGHT)->EnableWindow(enable);
@@ -247,7 +264,9 @@ void CFractalDlg::OnBnClickedButtonStart()
 	    if( UpdateData() )
         {
             UpdatePreview();
-	        m_Progress.SetRange(0, m_BitmapHeight);
+            UpdateZoomValue();
+            UpdateZoomSliderValue();
+            m_Progress.SetRange(0, m_BitmapHeight);
 	        m_Progress.SetPos(0);
             EnableStartControls(FALSE);
 	        m_Thread = NewCalculationThread();
@@ -320,9 +339,6 @@ void CFractalDlg::OnOK()
     OnBnClickedButtonStart();
 }
 
-const float MOVE_QUOTIENT = 10.0f; // it means that picture is moved/zoomed to 1/10 each step
-                                   // > 2 !
-
 typedef bool (*WIDTH_PREDICATE)(float);
 
 bool too_narrow(float width) { return width < 1e-5f; }
@@ -331,7 +347,7 @@ bool too_wide(float width) { return width > 1e+38f; }
 bool Move(float &lower, float &upper,
           int lower_sign, int upper_sign,
           WIDTH_PREDICATE is_width_bad = NULL,
-          float quotient = MOVE_QUOTIENT)
+          float quotient = DEFAULT_MOVE_QUOTIENT)
 {
     float width = (upper - lower);
     if( is_width_bad != NULL && is_width_bad( width ) )
@@ -383,34 +399,72 @@ void CFractalDlg::OnBnClickedButtonRight()
     }
 }
 
-void CFractalDlg::Zoom(bool zoom_in, bool need_to_update_data)
+void CFractalDlg::Zoom(float final_zoom, bool need_to_update_data /*=false*/)
 {
-    _ASSERT(MOVE_QUOTIENT > 2);
     bool res = false;
+    bool zoom_in;
+    float move_quotient;
+
+    if( final_zoom == m_Zoom )
+        return;
+
+    if( final_zoom > m_Zoom )
+    {
+        zoom_in = true;
+        move_quotient = 2/(1 - m_Zoom/final_zoom);
+    }
+    else
+    {
+        zoom_in = false;
+        move_quotient = 2/(1 - final_zoom/m_Zoom);
+    }
+
+    _ASSERT(move_quotient > 2);
     if( !need_to_update_data || UpdateData() )
     {
         if(zoom_in)
         {
-            res = ( Move(m_XMin, m_XMax, 1, -1, too_narrow) &&
-                    Move(m_YMin, m_YMax, 1, -1, too_narrow) );
+            res = ( Move(m_XMin, m_XMax, 1, -1, too_narrow, move_quotient) &&
+                    Move(m_YMin, m_YMax, 1, -1, too_narrow, move_quotient) );
         }
         else
         {
-            res = ( Move(m_XMin, m_XMax, -1, 1, too_wide, MOVE_QUOTIENT-2) &&
-                    Move(m_YMin, m_YMax, -1, 1, too_wide, MOVE_QUOTIENT-2) );
+            res = ( Move(m_XMin, m_XMax, -1, 1, too_wide, move_quotient-2) &&
+                    Move(m_YMin, m_YMax, -1, 1, too_wide, move_quotient-2) );
         }
 
         if(res)
         {
+            m_Zoom = final_zoom;
             UpdateData(FALSE);
         }
     }
+}
+void CFractalDlg::DoZoom(bool zoom_in /*=true*/, bool need_to_update_data /*=false*/)
+{
+    float final_zoom = zoom_in ? m_Zoom*DEFAULT_ZOOM_FACTOR : m_Zoom/DEFAULT_ZOOM_FACTOR;
+    Zoom(final_zoom, need_to_update_data);
+}
+
+void CFractalDlg::UpdateZoomValue()
+{
+    _ASSERT( m_XMax - m_XMin != 0);
+    m_Zoom = (DEFAULT_Y_MAX - DEFAULT_X_MIN)/(m_XMax - m_XMin)*100;
+    UpdateData(FALSE);
+}
+
+void CFractalDlg::UpdateZoomSliderValue()
+{
+    float exponent = log10(m_Zoom);
+    m_SliderZoom.SetPos( (int)(exponent*UNITS_PER_ZOOM_EXPONENT) );
 }
 
 LRESULT CFractalDlg::OnDoZoom(WPARAM,LPARAM)
 {
     UpdatePreview();
-    Zoom();
+    UpdateZoomValue();
+    UpdateZoomSliderValue();
+    DoZoom();
     m_Zoomed.SetEvent();
     return 0;
 }
@@ -424,14 +478,14 @@ LRESULT CFractalDlg::OnDoRead(WPARAM,LPARAM)
 
 void CFractalDlg::OnBnClickedButtonZoomIn()
 {
-    Zoom(true, true);
+    DoZoom(true, true);
     UpdatePreview();
     OnOK();
 }
 
 void CFractalDlg::OnBnClickedButtonZoomOut()
 {
-    Zoom(false, true);
+    DoZoom(false, true);
     UpdatePreview();
     OnOK();
 }
@@ -507,7 +561,7 @@ void CFractalDlg::OnBnClickedButtonZoomDemo2()
         m_BitmapWidth = 320;
         m_BitmapHeight = 240;
         m_ItersPerPoint = 150;
-        m_AnimationRepeats = 52;
+        m_AnimationRepeats = 50;
         UpdateData(FALSE);
         
         OnBnClickedButtonAnimationGo();
@@ -547,7 +601,7 @@ void CFractalDlg::OnBnClickedButtonDemo3()
         m_BitmapWidth = 480;
         m_BitmapHeight = 380;
         m_ItersPerPoint = 500;
-        m_AnimationRepeats = 52;
+        m_AnimationRepeats = 50;
         UpdateData(FALSE);
         
         OnBnClickedButtonAnimationGo();

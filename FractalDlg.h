@@ -14,6 +14,10 @@ protected:
 	HICON m_hIcon;
 	void MakeBitmap(CDC *dc, int w, int h);
     void ReadData();
+    void Zoom(float final_zoom, bool need_to_update_data = false);
+    void DoZoom(bool zoom_in = true, bool need_to_update_data = false);
+    void UpdateZoomValue();
+    void UpdateZoomSliderValue();
 
 
 	// Generated message map functions
@@ -28,6 +32,7 @@ private:
     void SetDefaultPictureSize();
 
 	CProgressCtrl m_Progress;
+    CSliderCtrl m_SliderZoom;
 
 	bool is_bitmap_made;
 	UINT m_BitmapWidth;
@@ -39,7 +44,6 @@ private:
 	CStatic m_Canvas;
 	CThread * m_Thread;
 
-	bool m_AnimationOn;
     CEvent m_Zoomed;
     CEvent m_UpdatedData;
     CEvent m_Read;
@@ -52,8 +56,10 @@ private:
     float m_YMin;
     float m_YMax;
 
+	bool m_AnimationOn;
     UINT m_AnimationRepeats;
     CPreview m_Preview;
+    float m_Zoom;
 public:
 // Construction
 	CFractalDlg(CWnd* pParent = NULL);	// standard constructor
@@ -64,7 +70,6 @@ public:
 // Dialog Data
 	enum { IDD = IDD_FRACTAL_DIALOG };
 // Handlers
-    void Zoom(bool zoom_in = true, bool need_to_update_data = false);
     void PostZoomAndWait();
     void PostUpdateDataAndWait();
     void PostReadAndWait();
@@ -92,4 +97,5 @@ public:
     afx_msg void OnBnClickedButtonDemo3();
     afx_msg void OnBnClickedButtonAnimationGo();
 	afx_msg void OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult);
+    CEdit m_EditZoom;
 };
