@@ -116,6 +116,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_ANIMATION_GO, &CFractalDlg::OnBnClickedButtonAnimationGo)
 	ON_WM_CLOSE()
 	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_ANIMATION_REPEATS, &CFractalDlg::OnDeltaposSpinAnimationRepeats)
+    ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -649,4 +650,13 @@ void CFractalDlg::OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult
     {
         *pResult = E_FAIL;
     }
+}
+
+void CFractalDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+    // TODO: Add your message handler code here and/or call default
+    float zoom = pow(10.0f, ((float)m_SliderZoom.GetPos())/UNITS_PER_ZOOM_EXPONENT);
+    Zoom(zoom, true);
+    UpdatePreview();
+    CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }

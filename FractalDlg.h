@@ -98,4 +98,5 @@ public:
     afx_msg void OnBnClickedButtonAnimationGo();
 	afx_msg void OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult);
     CEdit m_EditZoom;
+    afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };
