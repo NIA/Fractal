@@ -100,6 +100,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
 	ON_MESSAGE(MSG_ANIMATION_DO_READ, &CFractalDlg::OnDoRead)
 	ON_MESSAGE(MSG_ANIMATION_FINISHED, &CFractalDlg::OnAnimationFinish)
 	ON_MESSAGE(MSG_ANIMATION_DO_UPDATE_DATA, &CFractalDlg::OnDoUpdateData)
+	ON_MESSAGE(MSG_PREVIEW_MOVED, &CFractalDlg::OnPreviewMoved)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CFractalDlg::OnBnClickedButtonStop)
     ON_BN_CLICKED(IDC_BUTTON_UP, &CFractalDlg::OnBnClickedButtonUp)
     ON_BN_CLICKED(IDC_BUTTON_DOWN, &CFractalDlg::OnBnClickedButtonDown)
@@ -159,11 +160,26 @@ void CFractalDlg::MakeBitmap(CDC *dc, int w, int h)
 
 void CFractalDlg::UpdatePreview()
 {
-    m_Preview.Set( ((float)(m_XMin - DEFAULT_X_MIN))/DEFAULT_WIDTH,
-                   ((float)(m_XMax - DEFAULT_X_MIN))/DEFAULT_WIDTH,
-                   ((float)(m_YMin - DEFAULT_Y_MIN))/DEFAULT_HEIGHT,
-                   ((float)(m_YMax - DEFAULT_Y_MIN))/DEFAULT_HEIGHT );
+    m_Preview.Set( (m_XMin - DEFAULT_X_MIN)/DEFAULT_WIDTH,
+                   (m_XMax - DEFAULT_X_MIN)/DEFAULT_WIDTH,
+                   (m_YMin - DEFAULT_Y_MIN)/DEFAULT_HEIGHT,
+                   (m_YMax - DEFAULT_Y_MIN)/DEFAULT_HEIGHT );
 }
+
+LRESULT CFractalDlg::OnPreviewMoved(WPARAM,LPARAM)
+{
+    float x_min, x_max, y_min, y_max; // 0..1
+    m_Preview.Get(x_min, x_max, y_min, y_max);
+    m_XMin = DEFAULT_X_MIN + x_min*DEFAULT_WIDTH;
+    m_XMax = DEFAULT_X_MIN + x_max*DEFAULT_WIDTH;
+    m_YMin = DEFAULT_Y_MIN + y_min*DEFAULT_HEIGHT;
+    m_YMax = DEFAULT_Y_MIN + y_max*DEFAULT_HEIGHT;
+    UpdatePreview();
+    UpdateZoomValue();
+    UpdateZoomSliderValue();
+    return 0;
+}
+
 void CFractalDlg::ReadData()
 {
 	if( m_Thread != NULL)
@@ -654,9 +670,8 @@ void CFractalDlg::OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult
 
 void CFractalDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-    // TODO: Add your message handler code here and/or call default
+    CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
     float zoom = pow(10.0f, ((float)m_SliderZoom.GetPos())/UNITS_PER_ZOOM_EXPONENT);
     Zoom(zoom, true);
     UpdatePreview();
-    CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }
