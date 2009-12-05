@@ -31,7 +31,6 @@ BEGIN_MESSAGE_MAP(CPreview, CStatic)
     ON_WM_LBUTTONDOWN()
     ON_WM_LBUTTONUP()
     ON_WM_MOUSEMOVE()
-    ON_WM_MOUSELEAVE()
 END_MESSAGE_MAP()
 
 
@@ -102,11 +101,18 @@ void CPreview::OnLButtonDown(UINT nFlags, CPoint point)
 
     drag = true;
     SetCapture();
-    set_drag_start(
-                    CPoint( convert_x_min( (x_min + x_max)/2, w, h ),
-                            convert_y_min( (y_min + y_max)/2, w, h ) )
-                   ); // a center of the rect
-    MoveTo(point);
+    float x = (float)point.x/w;
+    float y = (float)point.y/h;
+
+    if( x > x_max || x < x_min || y < y_min || y > y_max )
+    {
+        // if clicked outside the rect
+        set_drag_start(
+                        CPoint( convert_x_min( (x_min + x_max)/2, w, h ),
+                                convert_y_min( (y_min + y_max)/2, w, h ) )
+                       ); // a center of the rect
+        MoveTo(point);
+    }
     set_drag_start( point );
     CStatic::OnLButtonDown(nFlags, point);
 }
@@ -115,6 +121,7 @@ void CPreview::OnLButtonUp(UINT nFlags, CPoint point)
 {
     drag = false;
     ReleaseCapture();
+    ::PostMessage(GetParent()->m_hWnd, MSG_START_1_10, 0, 0);
     CStatic::OnLButtonUp(nFlags, point);
 }
 
@@ -143,10 +150,4 @@ void CPreview::OnMouseMove(UINT nFlags, CPoint point)
         MoveTo(point);
     }
     CStatic::OnMouseMove(nFlags, point);
-}
-
-void CPreview::OnMouseLeave()
-{
-    drag = false;
-    CStatic::OnMouseLeave();
 }

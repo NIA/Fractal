@@ -83,6 +83,7 @@ public:
 	afx_msg LRESULT OnAnimationFinish(WPARAM,LPARAM);
 	afx_msg LRESULT OnDoUpdateData(WPARAM,LPARAM);
 	afx_msg LRESULT OnPreviewMoved(WPARAM,LPARAM);
+	afx_msg LRESULT OnStart_1_10(WPARAM,LPARAM);
 	afx_msg void OnBnClickedButtonStop();
     afx_msg void OnBnClickedButtonUp();
     afx_msg void OnBnClickedButtonDown();

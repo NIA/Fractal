@@ -101,6 +101,7 @@ BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
 	ON_MESSAGE(MSG_ANIMATION_FINISHED, &CFractalDlg::OnAnimationFinish)
 	ON_MESSAGE(MSG_ANIMATION_DO_UPDATE_DATA, &CFractalDlg::OnDoUpdateData)
 	ON_MESSAGE(MSG_PREVIEW_MOVED, &CFractalDlg::OnPreviewMoved)
+	ON_MESSAGE(MSG_START_1_10, &CFractalDlg::OnStart_1_10)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CFractalDlg::OnBnClickedButtonStop)
     ON_BN_CLICKED(IDC_BUTTON_UP, &CFractalDlg::OnBnClickedButtonUp)
     ON_BN_CLICKED(IDC_BUTTON_DOWN, &CFractalDlg::OnBnClickedButtonDown)
@@ -177,6 +178,11 @@ LRESULT CFractalDlg::OnPreviewMoved(WPARAM,LPARAM)
     UpdatePreview();
     UpdateZoomValue();
     UpdateZoomSliderValue();
+    return 0;
+}
+LRESULT CFractalDlg::OnStart_1_10(WPARAM,LPARAM)
+{
+    OnBnClickedButtonImage110();
     return 0;
 }
 
@@ -673,5 +679,7 @@ void CFractalDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
     CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
     float zoom = pow(10.0f, ((float)m_SliderZoom.GetPos())/UNITS_PER_ZOOM_EXPONENT);
     Zoom(zoom, true);
+    if ( nSBCode == TB_THUMBPOSITION || nSBCode == TB_PAGEUP || nSBCode == TB_PAGEDOWN )
+        ::PostMessage(m_hWnd, MSG_START_1_10, 0, 0);
     UpdatePreview();
 }
