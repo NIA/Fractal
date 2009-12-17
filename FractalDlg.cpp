@@ -435,7 +435,7 @@ void CFractalDlg::OnBnClickedButtonUp()
     {
         UpdateData(FALSE);
         UpdatePreview();
-        OnOK();
+        OnStart_1_10();
     }
 }
 
@@ -445,7 +445,7 @@ void CFractalDlg::OnBnClickedButtonDown()
     {
         UpdateData(FALSE);
         UpdatePreview();
-        OnOK();
+        OnStart_1_10();
     }
 }
 
@@ -455,7 +455,7 @@ void CFractalDlg::OnBnClickedButtonLeft()
     {
         UpdateData(FALSE);
         UpdatePreview();
-        OnOK();
+        OnStart_1_10();
     }
 }
 
@@ -465,7 +465,7 @@ void CFractalDlg::OnBnClickedButtonRight()
     {
         UpdateData(FALSE);
         UpdatePreview();
-        OnOK();
+        OnStart_1_10();
     }
 }
 

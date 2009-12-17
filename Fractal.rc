@@ -120,7 +120,7 @@ BEGIN
     IDC_BUTTON_ZOOM_OUT     "Zoom out"
     IDC_BUTTON_ZOOM_DEMO    "Start demo 1"
     IDC_BUTTON_ZOOM_DEMO2   "Start demo 2"
-    IDC_BUTTON_IMAGE_1_10   "Render image in bad quality (10 times smaller)"
+    IDC_BUTTON_IMAGE_1_10   "Render image in low quality (10 times smaller)"
     IDC_BUTTON_IMAGE_ACTUAL "Render image in actual size"
     IDC_BUTTON_DEMO3        "Start demo 3"
     IDC_ANIMATION_REPEATS   "Number of zoom repeats for animation"
