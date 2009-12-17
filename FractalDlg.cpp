@@ -20,8 +20,76 @@ const float DEFAULT_MOVE_QUOTIENT = 10.0f; // it means that picture is moved/zoo
                                            // > 2 !
 const float DEFAULT_ZOOM_FACTOR = 1/(1 - 2/DEFAULT_MOVE_QUOTIENT);
 
-const UINT MAX_ZOOM_EXPONENT = 7;
+const UINT MAX_ZOOM_EXPONENT = 6;
 const UINT UNITS_PER_ZOOM_EXPONENT = 10;
+
+const UINT MAX_TOOLTIP_LENGTH = 80;
+
+const unsigned CONTROLS_WITH_TOOLTIPS[] = {
+    IDCANCEL,
+    IDC_INPUT_WIDTH,
+    IDC_INPUT_HEIGHT,
+    IDC_EDIT_ITERS,
+    IDC_GRAYSCALE,
+    IDC_FORMULA,
+    IDC_MODULO,
+    IDC_BUTTON_START,
+    IDC_BUTTON_STOP,
+    IDC_INPUT_XMIN,
+    IDC_INPUT_XMAX,
+    IDC_INPUT_YMIN,
+    IDC_INPUT_YMAX,
+    IDC_BUTTON_UP,
+    IDC_BUTTON_DOWN,
+    IDC_BUTTON_RIGHT,
+    IDC_BUTTON_LEFT,
+    IDC_BUTTON_ZOOM_IN,
+    IDC_BUTTON_ZOOM_OUT,
+    IDC_BUTTON_ZOOM_DEFAULT,
+    IDC_BUTTON_ZOOM_DEMO,
+    IDC_BUTTON_ZOOM_DEMO2,
+    IDC_BUTTON_IMAGE_1_10,
+    IDC_BUTTON_IMAGE_ACTUAL,
+    IDC_BUTTON_DEMO3,
+    IDC_ANIMATION_REPEATS,
+    IDC_BUTTON_ANIMATION_GO,
+    IDC_PREVIEW,
+    IDC_INPUT_ZOOM,
+    IDC_SLIDER_ZOOM,
+};
+
+BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_BUTTON_START, &CFractalDlg::OnBnClickedButtonStart)
+	ON_MESSAGE(MSG_PROGRESS, &CFractalDlg::OnProgressChanged)
+	ON_MESSAGE(MSG_FINISHED, &CFractalDlg::OnThreadFinish)
+	ON_MESSAGE(MSG_ANIMATION_DO_ZOOM, &CFractalDlg::OnDoZoom)
+	ON_MESSAGE(MSG_ANIMATION_DO_READ, &CFractalDlg::OnDoRead)
+	ON_MESSAGE(MSG_ANIMATION_FINISHED, &CFractalDlg::OnAnimationFinish)
+	ON_MESSAGE(MSG_ANIMATION_DO_UPDATE_DATA, &CFractalDlg::OnDoUpdateData)
+	ON_MESSAGE(MSG_PREVIEW_MOVED, &CFractalDlg::OnPreviewMoved)
+	ON_MESSAGE(MSG_START_1_10, &CFractalDlg::OnStart_1_10)
+	ON_BN_CLICKED(IDC_BUTTON_STOP, &CFractalDlg::OnBnClickedButtonStop)
+    ON_BN_CLICKED(IDC_BUTTON_UP, &CFractalDlg::OnBnClickedButtonUp)
+    ON_BN_CLICKED(IDC_BUTTON_DOWN, &CFractalDlg::OnBnClickedButtonDown)
+    ON_BN_CLICKED(IDC_BUTTON_ZOOM_IN, &CFractalDlg::OnBnClickedButtonZoomIn)
+    ON_BN_CLICKED(IDC_BUTTON_ZOOM_OUT, &CFractalDlg::OnBnClickedButtonZoomOut)
+    ON_BN_CLICKED(IDC_BUTTON_LEFT, &CFractalDlg::OnBnClickedButtonLeft)
+    ON_BN_CLICKED(IDC_BUTTON_RIGHT, &CFractalDlg::OnBnClickedButtonRight)
+    ON_BN_CLICKED(IDC_BUTTON_ZOOM_DEFAULT, &CFractalDlg::OnBnClickedButtonZoomDefault)
+    ON_BN_CLICKED(IDC_BUTTON_ZOOM_DEMO, &CFractalDlg::OnBnClickedButtonZoomDemo)
+    ON_BN_CLICKED(IDC_BUTTON_ZOOM_DEMO2, &CFractalDlg::OnBnClickedButtonZoomDemo2)
+    ON_BN_CLICKED(IDC_BUTTON_IMAGE_1_10, &CFractalDlg::OnBnClickedButtonImage110)
+    ON_BN_CLICKED(IDC_BUTTON_IMAGE_ACTUAL, &CFractalDlg::OnBnClickedButtonImageActual)
+    ON_BN_CLICKED(IDC_BUTTON_DEMO3, &CFractalDlg::OnBnClickedButtonDemo3)
+    ON_BN_CLICKED(IDC_BUTTON_ANIMATION_GO, &CFractalDlg::OnBnClickedButtonAnimationGo)
+	ON_WM_CLOSE()
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_ANIMATION_REPEATS, &CFractalDlg::OnDeltaposSpinAnimationRepeats)
+    ON_WM_HSCROLL()
+    ON_WM_DESTROY()
+END_MESSAGE_MAP()
 
 CFractalDlg::CFractalDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CFractalDlg::IDD, pParent)
@@ -89,39 +157,6 @@ void CFractalDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_INPUT_ZOOM, m_EditZoom);
 }
 
-BEGIN_MESSAGE_MAP(CFractalDlg, CDialog)
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	//}}AFX_MSG_MAP
-	ON_BN_CLICKED(IDC_BUTTON_START, &CFractalDlg::OnBnClickedButtonStart)
-	ON_MESSAGE(MSG_PROGRESS, &CFractalDlg::OnProgressChanged)
-	ON_MESSAGE(MSG_FINISHED, &CFractalDlg::OnThreadFinish)
-	ON_MESSAGE(MSG_ANIMATION_DO_ZOOM, &CFractalDlg::OnDoZoom)
-	ON_MESSAGE(MSG_ANIMATION_DO_READ, &CFractalDlg::OnDoRead)
-	ON_MESSAGE(MSG_ANIMATION_FINISHED, &CFractalDlg::OnAnimationFinish)
-	ON_MESSAGE(MSG_ANIMATION_DO_UPDATE_DATA, &CFractalDlg::OnDoUpdateData)
-	ON_MESSAGE(MSG_PREVIEW_MOVED, &CFractalDlg::OnPreviewMoved)
-	ON_MESSAGE(MSG_START_1_10, &CFractalDlg::OnStart_1_10)
-	ON_BN_CLICKED(IDC_BUTTON_STOP, &CFractalDlg::OnBnClickedButtonStop)
-    ON_BN_CLICKED(IDC_BUTTON_UP, &CFractalDlg::OnBnClickedButtonUp)
-    ON_BN_CLICKED(IDC_BUTTON_DOWN, &CFractalDlg::OnBnClickedButtonDown)
-    ON_BN_CLICKED(IDC_BUTTON_ZOOM_IN, &CFractalDlg::OnBnClickedButtonZoomIn)
-    ON_BN_CLICKED(IDC_BUTTON_ZOOM_OUT, &CFractalDlg::OnBnClickedButtonZoomOut)
-    ON_BN_CLICKED(IDC_BUTTON_LEFT, &CFractalDlg::OnBnClickedButtonLeft)
-    ON_BN_CLICKED(IDC_BUTTON_RIGHT, &CFractalDlg::OnBnClickedButtonRight)
-    ON_BN_CLICKED(IDC_BUTTON_ZOOM_DEFAULT, &CFractalDlg::OnBnClickedButtonZoomDefault)
-    ON_BN_CLICKED(IDC_BUTTON_ZOOM_DEMO, &CFractalDlg::OnBnClickedButtonZoomDemo)
-    ON_BN_CLICKED(IDC_BUTTON_ZOOM_DEMO2, &CFractalDlg::OnBnClickedButtonZoomDemo2)
-    ON_BN_CLICKED(IDC_BUTTON_IMAGE_1_10, &CFractalDlg::OnBnClickedButtonImage110)
-    ON_BN_CLICKED(IDC_BUTTON_IMAGE_ACTUAL, &CFractalDlg::OnBnClickedButtonImageActual)
-    ON_BN_CLICKED(IDC_BUTTON_DEMO3, &CFractalDlg::OnBnClickedButtonDemo3)
-    ON_BN_CLICKED(IDC_BUTTON_ANIMATION_GO, &CFractalDlg::OnBnClickedButtonAnimationGo)
-	ON_WM_CLOSE()
-	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_ANIMATION_REPEATS, &CFractalDlg::OnDeltaposSpinAnimationRepeats)
-    ON_WM_HSCROLL()
-END_MESSAGE_MAP()
-
-
 // CFractalDlg message handlers
 
 BOOL CFractalDlg::OnInitDialog()
@@ -138,6 +173,18 @@ BOOL CFractalDlg::OnInitDialog()
 
     m_SliderZoom.SetRange(1*UNITS_PER_ZOOM_EXPONENT, MAX_ZOOM_EXPONENT*UNITS_PER_ZOOM_EXPONENT, TRUE); // 10^1 ... 10^7
     m_SliderZoom.SetPos(2*UNITS_PER_ZOOM_EXPONENT);  // 10^2 = 100%
+    
+    EnableToolTips(TRUE);
+    m_ToolTip.Create(this);
+    for(unsigned i = 0; i < array_size(CONTROLS_WITH_TOOLTIPS); ++i)
+    {
+        unsigned id = CONTROLS_WITH_TOOLTIPS[i];
+        CString tooltip_text;
+        if(!tooltip_text.LoadString(id))   
+            continue;
+        m_ToolTip.AddTool(GetDlgItem(id), tooltip_text);
+    }
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -682,4 +729,27 @@ void CFractalDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
     if ( nSBCode == TB_THUMBPOSITION || nSBCode == TB_PAGEUP || nSBCode == TB_PAGEDOWN )
         ::PostMessage(m_hWnd, MSG_START_1_10, 0, 0);
     UpdatePreview();
+}
+
+void CFractalDlg::OnDestroy()
+{
+	if( is_bitmap_made )
+        m_Bitmap.DeleteObject();
+
+	if(m_Thread != NULL)
+	{
+		m_Thread->stop();
+		m_Thread->wait();
+		delete m_Thread;
+		m_Thread = NULL;
+	}
+    CDialog::OnDestroy();
+}
+
+BOOL CFractalDlg::PreTranslateMessage(MSG* pMsg)
+{
+    if(pMsg->message >= WM_MOUSEFIRST && pMsg->message <= WM_MOUSELAST)
+        m_ToolTip.RelayEvent(pMsg);
+    
+    return CDialog::PreTranslateMessage(pMsg);
 }

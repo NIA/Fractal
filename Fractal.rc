@@ -89,6 +89,52 @@ BEGIN
     IDS_PARSE_LESS          "Значение ""%1"" должно быть меньше значения ""%2"""
 END
 
+STRINGTABLE 
+BEGIN
+    IDC_INPUT_WIDTH         "Picture width in pixels"
+    IDC_BUTTON_START        "Start calculation of fractal"
+    IDC_BUTTON_STOP         "Interrupt calculation process"
+    IDC_INPUT_HEIGHT        "Picture height in pixels"
+    IDC_EDIT_ITERS          "Iterations per point (more iterations - better quality)"
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_MODULO              "Discrete colors"
+    IDC_GRAYSCALE           "Grayscale gradient"
+    IDC_FORMULA             "Color gradient"
+    IDC_INPUT_XMIN          "Left bound of drawing area"
+    IDC_INPUT_XMAX          "Right bound of drawing area"
+    IDC_INPUT_YMIN          "Top bound of drawing area"
+    IDC_INPUT_YMAX          "Bottom bound of drawing area"
+    IDC_BUTTON_UP           "Move drawing area up"
+    IDC_BUTTON_ZOOM_DEFAULT "Reset zoom"
+    IDC_BUTTON_DOWN         "Move drawing area down"
+    IDC_BUTTON_RIGHT        "Move drawing area right"
+    IDC_BUTTON_LEFT         "Move drawing area left"
+    IDC_BUTTON_ZOOM_IN      "Zoom in"
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_BUTTON_ZOOM_OUT     "Zoom out"
+    IDC_BUTTON_ZOOM_DEMO    "Start demo 1"
+    IDC_BUTTON_ZOOM_DEMO2   "Start demo 2"
+    IDC_BUTTON_IMAGE_1_10   "Render image in bad quality (10 times smaller)"
+    IDC_BUTTON_IMAGE_ACTUAL "Render image in actual size"
+    IDC_BUTTON_DEMO3        "Start demo 3"
+    IDC_ANIMATION_REPEATS   "Number of zoom repeats for animation"
+    IDC_BUTTON_ANIMATION_GO "Start animation"
+    IDC_PREVIEW             "Preview of drawing area. Move frame to change it"
+    IDC_INPUT_ZOOM          "Zoom value"
+    IDC_SLIDER_ZOOM         "Zoom"
+END
+
+STRINGTABLE 
+BEGIN
+    IDCANCEL                "Exit application"
+END
+
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -128,7 +174,7 @@ BEGIN
     CONTROL         "",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,84,6,504,18
     LTEXT           "Iters per point",IDC_STATIC,6,126,48,9
     GROUPBOX        "Draw style",IDC_STATIC,6,156,72,54
-    GROUPBOX        "Plot area",IDC_STATIC,594,108,125,192
+    GROUPBOX        "Drawing area",IDC_STATIC,594,108,125,192
     EDITTEXT        IDC_INPUT_XMIN,647,120,48,15,ES_AUTOHSCROLL
     LTEXT           "X min",IDC_STATIC,623,124,22,9
     EDITTEXT        IDC_INPUT_XMAX,647,140,48,15,ES_AUTOHSCROLL

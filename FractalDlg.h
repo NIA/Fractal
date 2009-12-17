@@ -6,6 +6,13 @@
 #include "AnimationThread.h"
 #include "preview.h"
 
+// a helper to find out a size of an array defined with `array[]={...}' without doing `sizeof(array)/sizeof(array[0])'
+template<size_t SIZE, class T> inline size_t array_size(T (&array)[SIZE])
+{
+    UNREFERENCED_PARAMETER(array);
+    return SIZE;
+}
+
 // CFractalDlg dialog
 class CFractalDlg : public CDialog
 {
@@ -25,6 +32,32 @@ protected:
 	afx_msg void OnPaint();
     virtual void OnOK();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnBnClickedButtonStart();
+	afx_msg LRESULT OnProgressChanged(WPARAM,LPARAM);
+	afx_msg LRESULT OnThreadFinish(WPARAM,LPARAM);
+	afx_msg LRESULT OnDoZoom(WPARAM,LPARAM);
+	afx_msg LRESULT OnDoRead(WPARAM,LPARAM);
+	afx_msg LRESULT OnAnimationFinish(WPARAM,LPARAM);
+	afx_msg LRESULT OnDoUpdateData(WPARAM,LPARAM);
+	afx_msg LRESULT OnPreviewMoved(WPARAM,LPARAM);
+	afx_msg LRESULT OnStart_1_10(WPARAM,LPARAM);
+	afx_msg void OnBnClickedButtonStop();
+    afx_msg void OnBnClickedButtonUp();
+    afx_msg void OnBnClickedButtonDown();
+    afx_msg void OnBnClickedButtonZoomIn();
+    afx_msg void OnBnClickedButtonZoomOut();
+    afx_msg void OnBnClickedButtonLeft();
+    afx_msg void OnBnClickedButtonRight();
+    afx_msg void OnBnClickedButtonZoomDefault();
+    afx_msg void OnBnClickedButtonZoomDemo();
+    afx_msg void OnBnClickedButtonZoomDemo2();
+    afx_msg void OnBnClickedButtonImage110();
+    afx_msg void OnBnClickedButtonImageActual();
+    afx_msg void OnBnClickedButtonDemo3();
+    afx_msg void OnBnClickedButtonAnimationGo();
+	afx_msg void OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+    afx_msg void OnDestroy();
 	DECLARE_MESSAGE_MAP()
 private:
     void EnableStartControls(BOOL enable = TRUE);
@@ -59,7 +92,10 @@ private:
 	bool m_AnimationOn;
     UINT m_AnimationRepeats;
     CPreview m_Preview;
+    CEdit m_EditZoom;
     float m_Zoom;
+
+    CToolTipCtrl m_ToolTip;
 public:
 // Construction
 	CFractalDlg(CWnd* pParent = NULL);	// standard constructor
@@ -67,38 +103,10 @@ public:
     CCalculationThread * NewCalculationThread(); // creates new calculation thread with compatible params
     void UpdatePreview();
 
-// Dialog Data
 	enum { IDD = IDD_FRACTAL_DIALOG };
-// Handlers
     void PostZoomAndWait();
     void PostUpdateDataAndWait();
     void PostReadAndWait();
     void InvalidateCanvas(int lines_ready = -1);
-    
-	afx_msg void OnBnClickedButtonStart();
-	afx_msg LRESULT OnProgressChanged(WPARAM,LPARAM);
-	afx_msg LRESULT OnThreadFinish(WPARAM,LPARAM);
-	afx_msg LRESULT OnDoZoom(WPARAM,LPARAM);
-	afx_msg LRESULT OnDoRead(WPARAM,LPARAM);
-	afx_msg LRESULT OnAnimationFinish(WPARAM,LPARAM);
-	afx_msg LRESULT OnDoUpdateData(WPARAM,LPARAM);
-	afx_msg LRESULT OnPreviewMoved(WPARAM,LPARAM);
-	afx_msg LRESULT OnStart_1_10(WPARAM,LPARAM);
-	afx_msg void OnBnClickedButtonStop();
-    afx_msg void OnBnClickedButtonUp();
-    afx_msg void OnBnClickedButtonDown();
-    afx_msg void OnBnClickedButtonZoomIn();
-    afx_msg void OnBnClickedButtonZoomOut();
-    afx_msg void OnBnClickedButtonLeft();
-    afx_msg void OnBnClickedButtonRight();
-    afx_msg void OnBnClickedButtonZoomDefault();
-    afx_msg void OnBnClickedButtonZoomDemo();
-    afx_msg void OnBnClickedButtonZoomDemo2();
-    afx_msg void OnBnClickedButtonImage110();
-    afx_msg void OnBnClickedButtonImageActual();
-    afx_msg void OnBnClickedButtonDemo3();
-    afx_msg void OnBnClickedButtonAnimationGo();
-	afx_msg void OnDeltaposSpinAnimationRepeats(NMHDR *pNMHDR, LRESULT *pResult);
-    CEdit m_EditZoom;
-    afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
