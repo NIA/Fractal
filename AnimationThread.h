@@ -9,8 +9,9 @@ private:
     CCalculationThread * current_thread;
     CFractalDlg * dialog;
     unsigned zoom_count;
+    bool zoom_in;
 public:
-    CAnimationThread(CFractalDlg * dialog, unsigned zoom_count);
+    CAnimationThread(CFractalDlg * dialog, unsigned zoom_count, bool zoom_in);
     unsigned get_zoom_count() { return zoom_count; }
 	virtual RGBQUAD *get_pixels();
     void calculate_frame(bool zoom);

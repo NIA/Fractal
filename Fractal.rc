@@ -128,6 +128,7 @@ BEGIN
     IDC_PREVIEW             "Preview of drawing area. Move frame to change it"
     IDC_INPUT_ZOOM          "Zoom value"
     IDC_SLIDER_ZOOM         "Zoom"
+    IDC_CHECK_ZOOM_IN       "Zoom in or out in animation"
 END
 
 STRINGTABLE 
@@ -197,16 +198,17 @@ BEGIN
     PUSHBUTTON      "1:10",IDC_BUTTON_IMAGE_1_10,42,108,36,12
     PUSHBUTTON      "1:1",IDC_BUTTON_IMAGE_ACTUAL,6,108,36,12
     PUSHBUTTON      "3",IDC_BUTTON_DEMO3,54,60,24,18
-    GROUPBOX        "Animation",IDC_STATIC,594,306,124,53
+    GROUPBOX        "Animation",IDC_STATIC,594,306,124,54
     LTEXT           "Zoom repeats",IDC_STATIC,601,321,45,9
     EDITTEXT        IDC_ANIMATION_REPEATS,647,319,36,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "GO!",IDC_BUTTON_ANIMATION_GO,600,336,112,18
+    PUSHBUTTON      "GO!",IDC_BUTTON_ANIMATION_GO,648,336,64,18
     LTEXT           "",IDC_PREVIEW,599,6,118,99,SS_NOTIFY | WS_BORDER,WS_EX_STATICEDGE
     LTEXT           "Demos:",IDC_STATIC,6,48,67,10
     EDITTEXT        IDC_INPUT_ZOOM,606,276,61,12,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "%",IDC_STATIC,668,278,8,8
     CONTROL         "",IDC_SLIDER_ZOOM,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,618,258,77,12
     CONTROL         "",IDC_SPIN_ANIMATION_REPEATS,"msctls_updown32",UDS_ARROWKEYS,684,318,11,12
+    CONTROL         "Zoom in",IDC_CHECK_ZOOM_IN,"Button",BS_AUTOCHECKBOX | BS_FLAT | WS_TABSTOP,603,341,41,10
 END
 
 
@@ -216,8 +218,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,1,0,0
+ PRODUCTVERSION 1,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -235,12 +237,12 @@ BEGIN
             VALUE "Comments", "A higly-configurable program for drawing Mandelbrot set fractal."
             VALUE "CompanyName", "Ivan Novikov"
             VALUE "FileDescription", "Fractal: Mandelbrot set"
-            VALUE "FileVersion", "1.0.0.1"
+            VALUE "FileVersion", "1.1.0.0"
             VALUE "InternalName", "Fractal"
             VALUE "LegalCopyright", "(C) Ivan Novikov, 2009.  All rights reserved."
             VALUE "OriginalFilename", "Fractal.exe"
             VALUE "ProductName", "Fractal: Mandelbrot set"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "ProductVersion", "1.1.0.0"
         END
     END
     BLOCK "VarFileInfo"

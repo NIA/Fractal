@@ -94,6 +94,7 @@ private:
     CPreview m_Preview;
     CEdit m_EditZoom;
     float m_Zoom;
+    BOOL m_ZoomIn;
 
     CToolTipCtrl m_ToolTip;
 public:
@@ -104,7 +105,7 @@ public:
     void UpdatePreview();
 
 	enum { IDD = IDD_FRACTAL_DIALOG };
-    void PostZoomAndWait();
+    void PostZoomAndWait(bool zoom_in);
     void PostUpdateDataAndWait();
     void PostReadAndWait();
     void InvalidateCanvas(int lines_ready = -1);

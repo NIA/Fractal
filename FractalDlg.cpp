@@ -25,7 +25,8 @@ const UINT UNITS_PER_ZOOM_EXPONENT = 10;
 
 const UINT MAX_TOOLTIP_LENGTH = 80;
 
-const unsigned CONTROLS_WITH_TOOLTIPS[] = {
+const unsigned CONTROLS_WITH_TOOLTIPS[] =
+{
     IDCANCEL,
     IDC_INPUT_WIDTH,
     IDC_INPUT_HEIGHT,
@@ -106,6 +107,7 @@ CFractalDlg::CFractalDlg(CWnd* pParent /*=NULL*/)
     , m_YMax(DEFAULT_Y_MAX)
     , m_AnimationRepeats(20)
     , m_Zoom(100)
+    , m_ZoomIn(true)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -155,6 +157,7 @@ void CFractalDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_INPUT_ZOOM, m_Zoom);
     DDX_Control(pDX, IDC_SLIDER_ZOOM, m_SliderZoom);
     DDX_Control(pDX, IDC_INPUT_ZOOM, m_EditZoom);
+    DDX_Check(pDX, IDC_CHECK_ZOOM_IN, m_ZoomIn);
 }
 
 // CFractalDlg message handlers
@@ -253,7 +256,6 @@ void CFractalDlg::OnPaint()
 	GetClientRect(&rect);
 	if (IsIconic())
 	{
-
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
 		// Center icon in client rectangle
@@ -314,6 +316,8 @@ void CFractalDlg::EnableCriticalForAnimationControls(BOOL enable /*=TRUE*/)
 {
 	GetDlgItem(IDC_INPUT_WIDTH)->EnableWindow(enable);
 	GetDlgItem(IDC_INPUT_HEIGHT)->EnableWindow(enable);
+    GetDlgItem(IDC_CHECK_ZOOM_IN)->EnableWindow(enable);
+    GetDlgItem(IDC_ANIMATION_REPEATS)->EnableWindow(enable);
 }
 
 CCalculationThread * CFractalDlg::NewCalculationThread()
@@ -529,12 +533,12 @@ void CFractalDlg::UpdateZoomSliderValue()
     m_SliderZoom.SetPos( (int)(exponent*UNITS_PER_ZOOM_EXPONENT) );
 }
 
-LRESULT CFractalDlg::OnDoZoom(WPARAM,LPARAM)
+LRESULT CFractalDlg::OnDoZoom(WPARAM wparam,LPARAM)
 {
     UpdatePreview();
     UpdateZoomValue();
     UpdateZoomSliderValue();
-    DoZoom();
+    DoZoom(wparam != 0); // != 0 is kinda cool casting from int to bool, as Microsoft thinks
     m_Zoomed.SetEvent();
     return 0;
 }
@@ -542,7 +546,6 @@ LRESULT CFractalDlg::OnDoZoom(WPARAM,LPARAM)
 LRESULT CFractalDlg::OnDoRead(WPARAM,LPARAM)
 {
     InvalidateCanvas();
-    //m_Read.SetEvent();
     return 0;
 }
 
@@ -560,10 +563,10 @@ void CFractalDlg::OnBnClickedButtonZoomOut()
     OnOK();
 }
 
-void CFractalDlg::PostZoomAndWait()
+void CFractalDlg::PostZoomAndWait(bool zoom_in)
 {
     m_Zoomed.ResetEvent();
-    ::PostMessage(m_hWnd, MSG_ANIMATION_DO_ZOOM, 0, 0);
+    ::PostMessage(m_hWnd, MSG_ANIMATION_DO_ZOOM, (WPARAM)zoom_in, 0);
     ::WaitForSingleObject(m_Zoomed.m_hObject, INFINITE);
 }
 
@@ -697,7 +700,7 @@ void CFractalDlg::OnBnClickedButtonAnimationGo()
         m_Progress.SetRange(0, m_BitmapHeight);
         m_Progress.SetPos(0);
 
-        m_Thread = new CAnimationThread(this, m_AnimationRepeats);
+        m_Thread = new CAnimationThread(this, m_AnimationRepeats, m_ZoomIn != 0); // != 0 is kinda cool casting from int to bool, as Microsoft thinks
         m_Thread->start();
         GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(TRUE);
     }

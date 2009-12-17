@@ -4,8 +4,8 @@
 #include "FractalDlg.h"
 #include "messages.h"
 
-CAnimationThread::CAnimationThread(CFractalDlg * dialog, unsigned zoom_count) 
-    : dialog(dialog), current_thread(NULL), zoom_count(zoom_count)
+CAnimationThread::CAnimationThread(CFractalDlg * dialog, unsigned zoom_count, bool zoom_in) 
+    : dialog(dialog), current_thread(NULL), zoom_count(zoom_count), zoom_in(zoom_in)
 {
     ASSERT(dialog != NULL);
 }
@@ -23,7 +23,7 @@ void CAnimationThread::calculate_frame(bool zoom)
     if( !is_stopped() )
 		dialog->PostUpdateDataAndWait();
     if( !is_stopped() && zoom )
-        dialog->PostZoomAndWait();
+        dialog->PostZoomAndWait(zoom_in);
 }
 
 void CAnimationThread::post_message(UINT msg)
@@ -43,7 +43,7 @@ DWORD __stdcall CAnimationThread::routine( void * param )
 			OutputDebugString(_T("\nAnimation Thread Interrupted\n"));
 			return 1;
 		}
-        thread->calculate_frame( i != zoom_count - 1);
+        thread->calculate_frame( i != zoom_count - 1); // on last frame we don't want to zoom after calculating
 	}
 	Sleep(100);
 	OutputDebugString(_T("\nAnimation Thread Finished\n"));
